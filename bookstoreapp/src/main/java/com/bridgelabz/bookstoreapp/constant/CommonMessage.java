@@ -4,6 +4,7 @@ public enum CommonMessage {
 
     REGISTRATION_SUCCESSFUL("Registration Successful."),
     EMAIL_VERIFIED("Email Verification Successful."),
+    EMAIL_NOT_VERIFIED("Email Verification Failed"),
     LOGIN_SUCCESSFUL("Login Successful."),
     USER_ALREADY_EXIST("User Already Exist."),
     REST_REQUEST_EXCEPTION("Exception in Rest Request."),

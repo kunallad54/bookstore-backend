@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
-public class UserServiceExceptionHandler {
+public class BookStoreExceptionHandler {
 
     /**
      * Purpose : To handle the exception when duplicate user gets inserted
@@ -50,8 +50,8 @@ public class UserServiceExceptionHandler {
      * @param exception
      * @return
      */
-    @ExceptionHandler(UserServiceException.class)
-    public ResponseEntity<ResponseDTO> handleUserServiceException(UserServiceException exception){
+    @ExceptionHandler(BookStoreException.class)
+    public ResponseEntity<ResponseDTO> handleUserServiceException(BookStoreException exception){
         ResponseDTO responseDTO = new ResponseDTO(CommonMessage.REST_REQUEST_EXCEPTION.getMessage(), exception.getMessage());
         return new ResponseEntity<>(responseDTO,HttpStatus.BAD_REQUEST);
     }

@@ -5,6 +5,5 @@ spring:
 server:
   servlet:
     context-path: /book-store-app
-
 jwt:
   secret: mySecretKey

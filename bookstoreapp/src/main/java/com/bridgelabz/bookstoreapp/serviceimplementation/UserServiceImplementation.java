@@ -5,7 +5,7 @@ import com.bridgelabz.bookstoreapp.constant.CommonMessage;
 import com.bridgelabz.bookstoreapp.dto.UserLoginDTO;
 import com.bridgelabz.bookstoreapp.dto.UserRegistrationDTO;
 import com.bridgelabz.bookstoreapp.entity.UserRegistration;
-import com.bridgelabz.bookstoreapp.exceptions.UserServiceException;
+import com.bridgelabz.bookstoreapp.exceptions.BookStoreException;
 import com.bridgelabz.bookstoreapp.repository.UserRepository;
 import com.bridgelabz.bookstoreapp.service.IUserService;
 import com.bridgelabz.bookstoreapp.utility.MailUtil;
@@ -16,8 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.mail.MessagingException;
-import java.io.UnsupportedEncodingException;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -47,46 +46,115 @@ public class UserServiceImplementation implements IUserService {
     @Override
     public String registerUser(UserRegistrationDTO userRegistrationDTO) {
         log.info("Inside registerUser userImplementationService Method");
-//        String email = userRegistrationDTO.getEmailId();
         Optional<UserRegistration> byEmailId = userRepository.findByEmailId(
                 userRegistrationDTO.getEmailId());
-        if(byEmailId.isPresent()) {
-            throw new UserServiceException("User with same email Id already present",
-                    UserServiceException.ExceptionType.USER_ALREADY_PRESENT);
+        if (byEmailId.isPresent()) {
+            throw new BookStoreException("User with same email Id already present",
+                    BookStoreException.ExceptionType.USER_ALREADY_PRESENT);
         }
         String encodedPassword = bCryptPasswordEncoder.encode(userRegistrationDTO.getPassword());
         userRegistrationDTO.setPassword(encodedPassword);
         UserRegistration userRegistration = userServiceBuilder.buildDO(userRegistrationDTO);
-        userRepository.save(userRegistration);
         String OTP = otpGenerator.generateOneTimePassword();
-        try {
-            mailUtil.sendOTPEmail(userRegistration,OTP);
-        } catch (MessagingException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        userRegistration.setOtp(OTP);
+        userRepository.save(userRegistration);
+        mailUtil.sendOTPEmail(userRegistration, OTP);
         log.info("registerUser service method successfully executed.");
         return CommonMessage.REGISTRATION_SUCCESSFUL.getMessage();
     }
 
+
     @Override
-    public String verifyEmail(String tokenID) {
-        return null;
+    public String verifyEmail(String userOTP, String email) {
+        log.info("Inside verifyEmail User Service Method");
+        UserRegistration userRegistration = getUserByEmail(email);
+        String generatedOTP = userRegistration.getOtp();
+        if (Objects.equals(userOTP, generatedOTP)) {
+            userRegistration.setIsVerified(true);
+            userRepository.save(userRegistration);
+            return CommonMessage.EMAIL_VERIFIED.getMessage();
+        }
+        return CommonMessage.EMAIL_NOT_VERIFIED.getMessage();
+    }
+
+    /**
+     * Purpose : To get user details by fetching its email
+     *
+     * @param email input given by user
+     * @return object of the UserRegistration i.e data of the user
+     */
+    public UserRegistration getUserByEmail(String email) {
+        return userRepository.findByEmailId(email)
+                .orElseThrow(() -> new BookStoreException
+                        ("Unauthorised User", BookStoreException.ExceptionType.UNAUTHORISED_USER));
     }
 
     @Override
     public String loginUser(UserLoginDTO userLoginDTO) {
-        return null;
+        log.info("Inside loginUser Service method ");
+        UserRegistration userByEmail = getUserByEmail(userLoginDTO.getEmailID());
+        if (userByEmail.isVerified) {
+            boolean password = bCryptPasswordEncoder.matches(userLoginDTO.getPassword(),
+                    userByEmail.getPassword());
+            if (!password) {
+                throw new BookStoreException("Incorrect Password",
+                        BookStoreException.ExceptionType.PASSWORD_INCORRECT);
+            }
+            log.info("loginUser Service Method Successfully executed");
+            return userLoginDTO.getEmailID();
+        } else {
+            throw new BookStoreException("Not Verified",
+                    BookStoreException.ExceptionType.EMAIL_NOT_VERIFIED);
+        }
     }
 
     @Override
     public String forgotPassword(String emailID) {
-        return null;
+        log.info("Inside forgotPassword User Service Method");
+        UserRegistration userByEmail = getUserByEmail(emailID);
+        if (userByEmail.isVerified) {
+            try {
+                String displayMessage = "RESET PASSWORD";
+                mailUtil.sendResetPasswordMail(userByEmail,tokenUtil.generateVerificationToken(emailID),displayMessage);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            throw new BookStoreException("Not Verified", BookStoreException.ExceptionType.EMAIL_NOT_VERIFIED);
+        }
+        log.info("forgotPassword Service Method executed successfully");
+        return CommonMessage.FORGET_PASSWORD.getMessage();
     }
 
     @Override
     public String resetPassword(String token, String password) {
-        return null;
+        log.info("Inside resetPassword User Service Method");
+        UserRegistration userByEmailToken = getUserByEmailToken(token);
+        userByEmailToken.setPassword(bCryptPasswordEncoder.encode(password));
+        userRepository.save(userByEmailToken);
+        log.info("resetPassword Service Method Executed Successfully");
+        return CommonMessage.RESET_PASSWORD.getMessage();
     }
+
+    /**
+     * Purpose : To get user details with help of token
+     *
+     * @param token input by user
+     * @return UserRegistration object
+     */
+    public UserRegistration getUserByEmailToken(String token) {
+        String email = tokenUtil.parseToken(token);
+        return getUserByEmail(email);
+    }
+
+    @Override
+    public String verifyEmailByToken(String token) {
+        log.info("Inside verifyEmail service method.");
+        UserRegistration userRegistration = getUserByEmailToken(token);
+        userRegistration.setIsVerified(true);
+        userRepository.save(userRegistration);
+        log.info("verifyEmail service method successfully executed.");
+        return CommonMessage.EMAIL_VERIFIED.getMessage();
+    }
+
 }
