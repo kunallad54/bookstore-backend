@@ -4,7 +4,7 @@ import com.bridgelabz.bookstoreapp.builder.UserServiceBuilder;
 import com.bridgelabz.bookstoreapp.constant.CommonMessage;
 import com.bridgelabz.bookstoreapp.dto.UserLoginDTO;
 import com.bridgelabz.bookstoreapp.dto.UserRegistrationDTO;
-import com.bridgelabz.bookstoreapp.entity.UserRegistration;
+import com.bridgelabz.bookstoreapp.entity.UserModel;
 import com.bridgelabz.bookstoreapp.exceptions.BookStoreException;
 import com.bridgelabz.bookstoreapp.repository.UserRepository;
 import com.bridgelabz.bookstoreapp.service.IUserService;
@@ -46,7 +46,7 @@ public class UserServiceImplementation implements IUserService {
     @Override
     public String registerUser(UserRegistrationDTO userRegistrationDTO) {
         log.info("Inside registerUser userImplementationService Method");
-        Optional<UserRegistration> byEmailId = userRepository.findByEmailId(
+        Optional<UserModel> byEmailId = userRepository.findByEmailId(
                 userRegistrationDTO.getEmailId());
         if (byEmailId.isPresent()) {
             throw new BookStoreException("User with same email Id already present",
@@ -54,12 +54,13 @@ public class UserServiceImplementation implements IUserService {
         }
         String encodedPassword = bCryptPasswordEncoder.encode(userRegistrationDTO.getPassword());
         userRegistrationDTO.setPassword(encodedPassword);
-        UserRegistration userRegistration = userServiceBuilder.buildDO(userRegistrationDTO);
+        UserModel userModel = userServiceBuilder.buildDO(userRegistrationDTO);
         String OTP = otpGenerator.generateOneTimePassword();
-        userRegistration.setOtp(OTP);
-        userRepository.save(userRegistration);
-        mailUtil.sendOTPEmail(userRegistration, OTP);
+        userModel.setOtp(OTP);
+        userRepository.save(userModel);
+        mailUtil.sendOTPEmail(userModel, OTP);
         log.info("registerUser service method successfully executed.");
+
         return CommonMessage.REGISTRATION_SUCCESSFUL.getMessage();
     }
 
@@ -67,11 +68,11 @@ public class UserServiceImplementation implements IUserService {
     @Override
     public String verifyEmail(String userOTP, String email) {
         log.info("Inside verifyEmail User Service Method");
-        UserRegistration userRegistration = getUserByEmail(email);
-        String generatedOTP = userRegistration.getOtp();
+        UserModel userModel = getUserByEmail(email);
+        String generatedOTP = userModel.getOtp();
         if (Objects.equals(userOTP, generatedOTP)) {
-            userRegistration.setIsVerified(true);
-            userRepository.save(userRegistration);
+            userModel.setIsVerified(true);
+            userRepository.save(userModel);
             return CommonMessage.EMAIL_VERIFIED.getMessage();
         }
         return CommonMessage.EMAIL_NOT_VERIFIED.getMessage();
@@ -83,7 +84,7 @@ public class UserServiceImplementation implements IUserService {
      * @param email input given by user
      * @return object of the UserRegistration i.e data of the user
      */
-    public UserRegistration getUserByEmail(String email) {
+    public UserModel getUserByEmail(String email) {
         return userRepository.findByEmailId(email)
                 .orElseThrow(() -> new BookStoreException
                         ("Unauthorised User", BookStoreException.ExceptionType.UNAUTHORISED_USER));
@@ -92,7 +93,7 @@ public class UserServiceImplementation implements IUserService {
     @Override
     public String loginUser(UserLoginDTO userLoginDTO) {
         log.info("Inside loginUser Service method ");
-        UserRegistration userByEmail = getUserByEmail(userLoginDTO.getEmailID());
+        UserModel userByEmail = getUserByEmail(userLoginDTO.getEmailID());
         if (userByEmail.isVerified) {
             boolean password = bCryptPasswordEncoder.matches(userLoginDTO.getPassword(),
                     userByEmail.getPassword());
@@ -111,7 +112,7 @@ public class UserServiceImplementation implements IUserService {
     @Override
     public String forgotPassword(String emailID) {
         log.info("Inside forgotPassword User Service Method");
-        UserRegistration userByEmail = getUserByEmail(emailID);
+        UserModel userByEmail = getUserByEmail(emailID);
         if (userByEmail.isVerified) {
             try {
                 String displayMessage = "RESET PASSWORD";
@@ -129,7 +130,7 @@ public class UserServiceImplementation implements IUserService {
     @Override
     public String resetPassword(String token, String password) {
         log.info("Inside resetPassword User Service Method");
-        UserRegistration userByEmailToken = getUserByEmailToken(token);
+        UserModel userByEmailToken = getUserByEmailToken(token);
         userByEmailToken.setPassword(bCryptPasswordEncoder.encode(password));
         userRepository.save(userByEmailToken);
         log.info("resetPassword Service Method Executed Successfully");
@@ -142,7 +143,7 @@ public class UserServiceImplementation implements IUserService {
      * @param token input by user
      * @return UserRegistration object
      */
-    public UserRegistration getUserByEmailToken(String token) {
+    public UserModel getUserByEmailToken(String token) {
         String email = tokenUtil.parseToken(token);
         return getUserByEmail(email);
     }
@@ -150,9 +151,9 @@ public class UserServiceImplementation implements IUserService {
     @Override
     public String verifyEmailByToken(String token) {
         log.info("Inside verifyEmail service method.");
-        UserRegistration userRegistration = getUserByEmailToken(token);
-        userRegistration.setIsVerified(true);
-        userRepository.save(userRegistration);
+        UserModel userModel = getUserByEmailToken(token);
+        userModel.setIsVerified(true);
+        userRepository.save(userModel);
         log.info("verifyEmail service method successfully executed.");
         return CommonMessage.EMAIL_VERIFIED.getMessage();
     }

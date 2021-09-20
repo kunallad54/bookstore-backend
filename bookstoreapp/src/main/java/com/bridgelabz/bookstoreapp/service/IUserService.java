@@ -2,7 +2,6 @@ package com.bridgelabz.bookstoreapp.service;
 
 import com.bridgelabz.bookstoreapp.dto.UserLoginDTO;
 import com.bridgelabz.bookstoreapp.dto.UserRegistrationDTO;
-import com.bridgelabz.bookstoreapp.entity.UserRegistration;
 
 public interface IUserService {
 

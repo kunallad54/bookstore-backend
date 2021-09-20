@@ -7,7 +7,9 @@ public class BookStoreException extends RuntimeException {
         EMAIL_NOT_FOUND,
         EMAIL_NOT_VERIFIED,
         PASSWORD_INCORRECT,
-        UNAUTHORISED_USER
+        UNAUTHORISED_USER,
+        BOOK_NOT_FOUND,
+        BOOK_ALREADY_EXIST
     }
 
     public BookStoreException.ExceptionType type;

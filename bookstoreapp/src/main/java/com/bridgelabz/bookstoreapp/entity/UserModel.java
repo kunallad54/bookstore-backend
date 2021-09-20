@@ -11,31 +11,48 @@ import java.util.Date;
 
 @Data
 @Entity
-@Table(name = "user_registration")
-public class UserRegistration{
+@Table(name = "USER")
+public class UserModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
+    @Column(name = "ID", nullable = false)
     private int id;
 
+    @Column(name="FIRST_NAME")
     private String firstName;
+
+    @Column(name="LAST_NAME")
     private String lastName;
+
+    @Column(name="KYC")
     private String kyc;
 
+    @Column(name="DATE_OF_BIRTH")
     private LocalDate dateOfBirth;
 
+    @Column(name="PASSWORD")
     private String password;
+
+    @Column(name="EMAIL_ID")
     private String emailId;
+
+    @Column(name = "PHONE_NUMBER")
     private String phoneNumber;
 
+    @Column(name="IS_VERIFIED")
     public Boolean isVerified;
+
+    @Column(name="USER_TYPE")
     private String userType;
 
+    @Column(name="OTP")
     private String otp;
 
+    @Column(name="REGISTERED_DATE")
     @CreationTimestamp
     private LocalDateTime registeredDate;
 
+    @Column(name="UPDATED_DATE")
     @UpdateTimestamp
     private LocalDateTime updatedDate;
 

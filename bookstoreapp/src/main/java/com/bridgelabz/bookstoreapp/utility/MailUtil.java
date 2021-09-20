@@ -1,6 +1,6 @@
 package com.bridgelabz.bookstoreapp.utility;
 
-import com.bridgelabz.bookstoreapp.entity.UserRegistration;
+import com.bridgelabz.bookstoreapp.entity.UserModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -17,41 +17,41 @@ public class MailUtil {
     /**
      * Purpose : To send OTP on the user mail
      *
-     * @param userRegistration object of UserRegistration
+     * @param userModel object of UserRegistration
      * @param OTP random generated String
      */
-    public void sendOTPEmail(UserRegistration userRegistration,String OTP)
+    public void sendOTPEmail(UserModel userModel, String OTP)
     {
         String subject = "Here's your One Time Password (OTP) - Expire in 5 minutes!";
-        String content = "<p>Hello " + userRegistration.getFirstName() + "</p>"
+        String content = "<p>Hello " + userModel.getFirstName() + "</p>"
                 + "<p>For security reason, you're required to use the following "
                 + "One Time Password to login:</p>"
                 + "<p><b>" + OTP + "</b></p>"
                 + "<br>"
                 + "<p>Note: this OTP is set to expire in 5 minutes.</p>";
-        setEmailConfiguration(subject,content,userRegistration);
+        setEmailConfiguration(subject,content, userModel);
 
     }
 
     /**
      * Purpose : To send link on the mail to reset the password
      *
-     * @param userRegistration
+     * @param userModel
      * @param generatedToken
      * @param displayMessage
      */
-    public void sendResetPasswordMail(UserRegistration userRegistration,String generatedToken,String displayMessage){
+    public void sendResetPasswordMail(UserModel userModel, String generatedToken, String displayMessage){
         String subject = "Here's your Reset Password Link - Please Verify Yourself Before link expires ";
-        String content = "<p>Hello " + userRegistration.getFirstName() + "</p>"
+        String content = "<p>Hello " + userModel.getFirstName() + "</p>"
                 + "<p>Please click here : "
                 + " Password Reset Link :</p>"
                 + "<p><b>" + "<a href=\"http://localhost:8080/book-store-app/user/verify-by-token?token=" + generatedToken + "\">" +displayMessage +"</a>" + "</b></p>"
                 + "<br>"
                 + "<p>Note: this link is set to expire in 5 minutes.</p>";
-        setEmailConfiguration(subject,content,userRegistration);
+        setEmailConfiguration(subject,content, userModel);
     }
 
-    public void setEmailConfiguration(String subject,String content,UserRegistration userRegistration){
+    public void setEmailConfiguration(String subject, String content, UserModel userModel){
         final String fromEmail = "bookstore123654@gmail.com";// requires valid gmail id
         final String password = "Asdfghjkl1$";// correct password for gmail id
         Properties props = new Properties();
@@ -79,7 +79,7 @@ public class MailUtil {
             msg.setSubject(subject, "UTF-8");
             msg.setText(content,"UTF-8","html");
             msg.setSentDate(new Date());
-            msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(userRegistration.getEmailId(), false));
+            msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(userModel.getEmailId(), false));
             Transport.send(msg);
             System.out.println("Email Sent Successfully........."); }
         catch (Exception e)
