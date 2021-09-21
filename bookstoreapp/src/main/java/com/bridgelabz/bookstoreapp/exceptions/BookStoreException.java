@@ -2,7 +2,7 @@ package com.bridgelabz.bookstoreapp.exceptions;
 
 public class BookStoreException extends RuntimeException {
 
-    public enum ExceptionType{
+    public enum ExceptionType {
         USER_ALREADY_PRESENT,
         EMAIL_NOT_FOUND,
         EMAIL_NOT_VERIFIED,

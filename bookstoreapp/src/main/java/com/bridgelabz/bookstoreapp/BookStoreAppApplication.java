@@ -10,9 +10,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Slf4j
 public class BookStoreAppApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(BookStoreAppApplication.class, args);
-		log.info("Book Store App has Started");
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(BookStoreAppApplication.class, args);
+        log.info("Book Store App has Started");
+    }
 
 }

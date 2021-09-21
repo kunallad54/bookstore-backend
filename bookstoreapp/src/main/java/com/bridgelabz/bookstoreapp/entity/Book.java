@@ -7,7 +7,7 @@ import javax.persistence.*;
 @Data
 @Entity
 @Table(name = "BOOK")
-public class BookModel {
+public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID", nullable = false)
@@ -22,7 +22,7 @@ public class BookModel {
     @Column(name = "DESCRIPTION")
     private String description;
 
-    @Column(name="LOGO")
+    @Column(name = "LOGO")
     private String logo;
 
     @Column(name = "PRICE")

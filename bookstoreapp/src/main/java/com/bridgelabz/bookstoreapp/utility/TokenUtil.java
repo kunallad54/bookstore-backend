@@ -20,18 +20,18 @@ public class TokenUtil {
      * @param email
      * @return
      */
-    public String generateVerificationToken(String email){
+    public String generateVerificationToken(String email) {
         log.info("Inside generateVerificationToken method.");
         long currentTime = System.currentTimeMillis();
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(currentTime + 360000))
-                .signWith(SignatureAlgorithm.HS256,jwtSecretKey)
+                .signWith(SignatureAlgorithm.HS256, jwtSecretKey)
                 .compact();
     }
 
-    public String parseToken(String token){
+    public String parseToken(String token) {
         log.info("Inside parseToken method.");
         return Jwts.parser().setSigningKey(jwtSecretKey).parseClaimsJws(token).getBody().getSubject();
     }
