@@ -14,11 +14,11 @@ import java.time.LocalDate;
 public class UserRegistrationDTO {
 
     @NotEmpty(message = "First Name cannot be empty")
-    @Pattern(regexp = "^[A-Z][a-zA-Z\\s]+$",message = "First Name Invalid")
+    @Pattern(regexp = "^[A-Z][a-zA-Z\\s]+$", message = "First Name Invalid")
     private String firstName;
 
     @NotEmpty(message = "Last Name cannot be empty")
-    @Pattern(regexp = "^[A-Z][a-zA-Z\\s]+$",message = "Last Name Invalid")
+    @Pattern(regexp = "^[A-Z][a-zA-Z\\s]+$", message = "Last Name Invalid")
     private String lastName;
 
     @NotEmpty(message = "KYC cannot be empty")
@@ -42,6 +42,6 @@ public class UserRegistrationDTO {
     @Pattern(regexp = "^(?=.*[0-9])(?=[^@#$%^&+=]*[@#$%^&+=][^@#$%^&+=]*$)(?=.*[a-z])(?=.*[A-Z]).{8,}$", message = "Password Invalid")
     private String password;
 
-    @Pattern(regexp = "User|Admin",message ="User Type should be Admin or User")
+    @Pattern(regexp = "User|Admin", message = "User Type should be Admin or User")
     private String userType;
 }

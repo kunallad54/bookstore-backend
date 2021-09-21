@@ -26,7 +26,7 @@ public class OTPGenerator {
         return OTP;
     }
 
-    public boolean isOTPRequired(){
+    public boolean isOTPRequired() {
         long currentTimeInMillis = System.currentTimeMillis();
         long otpRequestedTimeInMillis = this.otpRequestedTime.getTime();
         if (otpRequestedTimeInMillis + OTP_VALID_DURATION < currentTimeInMillis) {

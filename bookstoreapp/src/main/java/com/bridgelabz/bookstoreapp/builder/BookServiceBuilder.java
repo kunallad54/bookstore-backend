@@ -1,7 +1,7 @@
 package com.bridgelabz.bookstoreapp.builder;
 
 import com.bridgelabz.bookstoreapp.dto.BookDTO;
-import com.bridgelabz.bookstoreapp.entity.BookModel;
+import com.bridgelabz.bookstoreapp.entity.Book;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
@@ -10,10 +10,16 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class BookServiceBuilder {
 
-    public BookModel buildDO(BookDTO bookDTO){
+    /**
+     * Purpose : Ability to add book in the database
+     *
+     * @param bookDTO is object of BookDTO which saves data is repository
+     * @return object of Book
+     */
+    public Book buildDO(BookDTO bookDTO) {
         log.info("Inside buildDO BookServiceBuilder Method");
-        BookModel bookModel = new BookModel();
-        BeanUtils.copyProperties(bookDTO,bookModel);
-        return bookModel;
+        Book book = new Book();
+        BeanUtils.copyProperties(bookDTO, book);
+        return book;
     }
 }
