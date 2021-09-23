@@ -1,7 +1,6 @@
 package com.bridgelabz.bookstoreapp.utility;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -26,13 +25,19 @@ public class TokenUtil {
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(currentTime + 360000))
+                .setExpiration(new Date(currentTime + 7200000))
                 .signWith(SignatureAlgorithm.HS256, jwtSecretKey)
                 .compact();
     }
 
     public String parseToken(String token) {
         log.info("Inside parseToken method.");
-        return Jwts.parser().setSigningKey(jwtSecretKey).parseClaimsJws(token).getBody().getSubject();
+        try {
+            return Jwts.parser().setSigningKey(jwtSecretKey).parseClaimsJws(token).getBody().getSubject();
+        } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException
+                | SignatureException | IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+        return "Token is Invalid !!!";
     }
 }

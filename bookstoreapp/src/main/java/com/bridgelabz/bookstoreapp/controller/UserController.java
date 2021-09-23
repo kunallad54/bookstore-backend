@@ -28,7 +28,7 @@ public class UserController {
 
     /**
      * Purpose : Ability to insert user details in User Registration repository and
-     *           sending user OTP on user email to verify user is valid user or not.
+     * sending user OTP on user email to verify user is valid user or not.
      *
      * @param userRegistrationDTO Object of UserRegistrationDTO which will validate user-input
      *                            and once valid, will pass it to the UserRegistration entity.
@@ -74,13 +74,13 @@ public class UserController {
     /**
      * Purpose : To send email with link for resetting the password if the email is present in DB
      *
-     * @param emailID input given by user
+     * @param tokenID input given by user
      * @return String Object to print message
      */
     @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgetPassword(@RequestParam(name = "email") String emailID) {
+    public ResponseEntity<String> forgetPassword(@RequestParam(name = "token") String tokenID) {
         log.info(("Inside forgotPassword User Controller Method"));
-        return new ResponseEntity<>(userService.forgotPassword(emailID), HttpStatus.OK);
+        return new ResponseEntity<>(userService.forgotPassword(tokenID), HttpStatus.OK);
     }
 
     /**
@@ -111,20 +111,20 @@ public class UserController {
 
     /**
      * Purpose : Ability to purchased subscription and send email to user with a link for subscription
-     *           also set purchased and expiry date.
+     * also set purchased and expiry date.
      *
-     * @param email input taken from user
+     * @param token input taken from user
      * @return String object to print message
      */
     @PostMapping("/purchase-subscription")
-    public ResponseEntity<String> purchaseSubscription(@RequestParam(name = "email") String email) {
+    public ResponseEntity<String> purchaseSubscription(@RequestParam(name = "token") String token) {
         log.info("Inside purchasedSubscription Controller Method");
-        return new ResponseEntity<>(userService.purchaseSubscription(email), HttpStatus.OK);
+        return new ResponseEntity<>(userService.purchaseSubscription(token), HttpStatus.OK);
     }
 
     /**
      * Purpose: To check whether subscription has expired or not with help of token
-     *          it will identify the user
+     * it will identify the user
      *
      * @param token input taken from user
      * @return String object of messages

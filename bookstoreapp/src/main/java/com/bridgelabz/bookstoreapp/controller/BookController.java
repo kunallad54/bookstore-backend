@@ -30,13 +30,15 @@ public class BookController {
     /**
      * Purpose : To add book in the database after validating book details
      *
+     * @param token   generated token of user
      * @param bookDTO object of BookDTO which gets book data
      * @return String object of message
      */
     @PostMapping("/addBook")
-    public ResponseEntity<String> addBook(@RequestBody @Valid BookDTO bookDTO) {
+    public ResponseEntity<String> addBook(@RequestParam(name = "token") String token
+            , @RequestBody @Valid BookDTO bookDTO) {
         log.info("Inside addBook Controller Method");
-        return new ResponseEntity<>(bookService.addBook(bookDTO), HttpStatus.OK);
+        return new ResponseEntity<>(bookService.addBook(token, bookDTO), HttpStatus.OK);
     }
 
     /**
@@ -45,9 +47,9 @@ public class BookController {
      * @return List of BookDTO objects i.e list of books in DB
      */
     @GetMapping
-    public ResponseEntity<ResponseDTO> getBooks() {
+    public ResponseEntity<ResponseDTO> getBooks(@RequestParam(name = "token") String token) {
         log.info("Inside getBooks Controller Method");
-        List<BookDTO> bookList = bookService.getBooks();
+        List<BookDTO> bookList = bookService.getBooks(token);
         return new ResponseEntity<>(new ResponseDTO(messageSource.getMessage("get.books",
                 null, Locale.ENGLISH), bookList), HttpStatus.OK);
     }
@@ -59,9 +61,9 @@ public class BookController {
      * @return String object of message
      */
     @DeleteMapping("/deleteBook")
-    public ResponseEntity<String> deleteBook(@RequestParam(name = "id") int id) {
+    public ResponseEntity<String> deleteBook(@RequestParam(name = "id") int id, @RequestParam String token) {
         log.info("Inside deleteBook Controller Method");
-        return new ResponseEntity<>(bookService.deleteBook(id), HttpStatus.OK);
+        return new ResponseEntity<>(bookService.deleteBook(id, token), HttpStatus.OK);
     }
 
     /**
@@ -72,23 +74,26 @@ public class BookController {
      * @return String object of message
      */
     @PutMapping("/updateBookPrice")
-    public ResponseEntity<String> updateBookPrice(@RequestParam(name = "id") int id, @Valid
-    @RequestBody BookPriceDTO bookPriceDTO) {
+    public ResponseEntity<String> updateBookPrice(@RequestParam(name = "id") int id,
+                                                  @RequestParam(name = "token") String token, @Valid
+                                                  @RequestBody BookPriceDTO bookPriceDTO) {
         log.info("Inside updateBookPrice Controller Method");
-        return new ResponseEntity<>(bookService.updateBookPrice(id, bookPriceDTO), HttpStatus.OK);
+        return new ResponseEntity<>(bookService.updateBookPrice(id, token, bookPriceDTO), HttpStatus.OK);
     }
 
     /**
      * Purpose : Ability to update book quantity with its book id
      *
+     * @param token           generated token of user
      * @param id              book id to update book quantity of particular book
      * @param bookQuantityDTO object of bookQuantity which sets updated book quantity
      * @return String object of message
      */
     @PutMapping("/updateBookQuantity")
-    public ResponseEntity<String> updateBookQuantity(@RequestParam(name = "id") int id, @Valid
-    @RequestBody BookQuantityDTO bookQuantityDTO) {
+    public ResponseEntity<String> updateBookQuantity(@RequestParam(name = "id") int id,
+                                                     @RequestParam(name = "token") String token, @Valid
+                                                     @RequestBody BookQuantityDTO bookQuantityDTO) {
         log.info("Inside updateBookQuantity Controller Method");
-        return new ResponseEntity<>(bookService.updateBookQuantity(id, bookQuantityDTO), HttpStatus.OK);
+        return new ResponseEntity<>(bookService.updateBookQuantity(id, token, bookQuantityDTO), HttpStatus.OK);
     }
 }

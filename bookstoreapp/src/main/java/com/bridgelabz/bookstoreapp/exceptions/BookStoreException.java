@@ -9,7 +9,9 @@ public class BookStoreException extends RuntimeException {
         PASSWORD_INCORRECT,
         UNAUTHORISED_USER,
         BOOK_NOT_FOUND,
-        BOOK_ALREADY_EXIST
+        BOOK_ALREADY_EXIST,
+        CART_NOT_FOUND,
+        ORDER_NOT_FOUND
     }
 
     public BookStoreException.ExceptionType type;

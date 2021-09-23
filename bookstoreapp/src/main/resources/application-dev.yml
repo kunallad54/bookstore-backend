@@ -1,9 +1,10 @@
 ###### Database Properties ######
 spring:
   datasource:
-      url : ${db_url}
-      username: ${db_user}
-      password: ${db_pass}
+    url : ${db_url}
+    username: ${db_user}
+    password: ${db_pass}
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   ###### Email Properties ######
 #  mail:

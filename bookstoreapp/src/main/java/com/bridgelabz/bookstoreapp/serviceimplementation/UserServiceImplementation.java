@@ -49,7 +49,7 @@ public class UserServiceImplementation implements IUserService {
 
     /**
      * Purpose : Ability to register user after validating user details and send OTP on
-     *           user email to verify user
+     * user email to verify user
      *
      * @param userRegistrationDTO UserRegistrationDTO object to store it in the repository.
      * @return String object of message
@@ -77,8 +77,8 @@ public class UserServiceImplementation implements IUserService {
 
     /**
      * Purpose :  Ability to verify email after registration
-     *            If user entered OTP and actual OTP matches then
-     *            user will be verified or else not
+     * If user entered OTP and actual OTP matches then
+     * user will be verified or else not
      *
      * @param userOTP OTP entered by the user
      * @param email   user email
@@ -115,8 +115,10 @@ public class UserServiceImplementation implements IUserService {
                 throw new BookStoreException(messageSource.getMessage("incorrect.password",
                         null, Locale.ENGLISH), BookStoreException.ExceptionType.PASSWORD_INCORRECT);
             }
+            String token = tokenUtil.generateVerificationToken(userByEmail.getEmailId());
             log.info("loginUser Service Method Successfully executed");
-            return userLoginDTO.getEmailID();
+            String message = "Logged in successfully !!! Your token is : " + token;
+            return message;
         } else {
             throw new BookStoreException(messageSource.getMessage("email.not.verified",
                     null, Locale.ENGLISH), BookStoreException.ExceptionType.EMAIL_NOT_VERIFIED);
@@ -126,19 +128,20 @@ public class UserServiceImplementation implements IUserService {
     /**
      * Purpose : Ability to send email when user clicks on forget password.
      *
-     * @param emailID Variable is matched with the existing emails in the repository.
-     *                If match found, a mail is triggered to the user to reset the
-     *                password.
+     * @param token variable is generated token during login
+     *              If token is valid, a mail is triggered to the user to reset the
+     *              password.
      * @return String object of message
      */
     @Override
-    public String forgotPassword(String emailID) {
+    public String forgotPassword(String token) {
         log.info("Inside forgotPassword User Service Method");
-        User userByEmail = getUserByEmail(emailID);
+        User userByEmail = getUserByEmailToken(token);
         if (userByEmail.isVerified) {
             try {
                 String displayMessage = "RESET PASSWORD";
-                mailUtil.sendResetPasswordMail(userByEmail, tokenUtil.generateVerificationToken(emailID), displayMessage);
+                mailUtil.sendResetPasswordMail(userByEmail,
+                        token, displayMessage);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -187,24 +190,24 @@ public class UserServiceImplementation implements IUserService {
 
     /**
      * Purpose : Ability to take subscription for particular amount of time and
-     *           will send email with link to purchase subscription which will
-     *           generate token to verify to user.If user is not verified then
-     *           it will not able to purchase
+     * will send email with link to purchase subscription which will
+     * pass token to verify to user.If user is not verified then
+     * it will not able to purchase
      *
-     * @param emailId input taken from user
+     * @param token input taken from user
      * @return String object to print message whether user was able to purchase the subscription or not
      */
     @Override
-    public String purchaseSubscription(String emailId) {
+    public String purchaseSubscription(String token) {
         log.info("Inside purchaseSubscription Service Method");
-        User userByEmail = getUserByEmail(emailId);
+        User userByEmail = getUserByEmailToken(token);
         userByEmail.setPurchasedDate(LocalDateTime.now());
         userByEmail.setExpiredDate(userByEmail.getPurchasedDate().plusMinutes(5));
         userRepository.save(userByEmail);
         if (userByEmail.isVerified) {
             String displayMessage = "PURCHASE SUBSCRIPTION";
             mailUtil.sendSubscriptionMail(userByEmail,
-                    tokenUtil.generateVerificationToken(emailId), displayMessage);
+                    token, displayMessage);
         } else {
             throw new BookStoreException(messageSource.getMessage("email.not.verified",
                     null, Locale.ENGLISH), BookStoreException.ExceptionType.EMAIL_NOT_VERIFIED);
@@ -214,7 +217,7 @@ public class UserServiceImplementation implements IUserService {
 
     /**
      * Purpose : To check whether user subscription has expired or not
-     *           get user by token it has
+     * get user by token it has
      *
      * @param token input taken from user
      * @return String object of message whether subscription has expired or not
@@ -247,7 +250,9 @@ public class UserServiceImplementation implements IUserService {
      * @return UserRegistration object
      */
     public User getUserByEmailToken(String token) {
+        log.info("Inside getUserByEmailToken Method");
         String email = tokenUtil.parseToken(token);
+        System.out.println(email);
         return getUserByEmail(email);
     }
 

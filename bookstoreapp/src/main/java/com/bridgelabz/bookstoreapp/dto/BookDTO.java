@@ -13,6 +13,7 @@ import javax.validation.constraints.Pattern;
 @NoArgsConstructor
 public class BookDTO {
 
+    private int id;
     @NotEmpty(message = "Book Name cannot be null")
     @Pattern(regexp = "^[a-zA-Z0-9\\s]+$", message = "Book Name Invalid")
     private String name;
