@@ -39,6 +39,11 @@ public class Order {
 
     @JsonIgnoreProperties(value = {"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "USER_ID", referencedColumnName = "ID")
+    private User user;
+
+    @JsonIgnoreProperties(value = {"hibernateLazyInitializer", "handler"})
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "BOOK_ID", referencedColumnName = "ID")
     private Book book;
 

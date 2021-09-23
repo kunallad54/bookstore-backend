@@ -57,15 +57,14 @@ public class UserServiceImplementation implements IUserService {
     @Override
     public String registerUser(UserRegistrationDTO userRegistrationDTO) {
         log.info("Inside registerUser userImplementationService Method");
-        Optional<User> byEmailId = userRepository.findByEmailId(
-                userRegistrationDTO.getEmailId());
-        if (byEmailId.isPresent()) {
-            throw new BookStoreException(messageSource.getMessage("user.exist",
-                    null, Locale.ENGLISH), BookStoreException.ExceptionType.USER_ALREADY_PRESENT);
-        }
         String encodedPassword = bCryptPasswordEncoder.encode(userRegistrationDTO.getPassword());
         userRegistrationDTO.setPassword(encodedPassword);
         User user = userServiceBuilder.buildDO(userRegistrationDTO);
+        Optional<User> userByEmailId = userRepository.findUserByEmailId(user.getEmailId());
+        if (userByEmailId.isPresent()) {
+            throw new BookStoreException(messageSource.getMessage("user.exist",
+                    null, Locale.ENGLISH), BookStoreException.ExceptionType.USER_ALREADY_PRESENT);
+        }
         String OTP = otpGenerator.generateOneTimePassword();
         user.setOtp(OTP);
         userRepository.save(user);
@@ -115,7 +114,7 @@ public class UserServiceImplementation implements IUserService {
                 throw new BookStoreException(messageSource.getMessage("incorrect.password",
                         null, Locale.ENGLISH), BookStoreException.ExceptionType.PASSWORD_INCORRECT);
             }
-            String token = tokenUtil.generateVerificationToken(userByEmail.getEmailId());
+            String token = tokenUtil.generateVerificationToken(userByEmail.getId());
             log.info("loginUser Service Method Successfully executed");
             String message = "Logged in successfully !!! Your token is : " + token;
             return message;
@@ -251,22 +250,33 @@ public class UserServiceImplementation implements IUserService {
      */
     public User getUserByEmailToken(String token) {
         log.info("Inside getUserByEmailToken Method");
-        String email = tokenUtil.parseToken(token);
-        System.out.println(email);
-        return getUserByEmail(email);
+        int id = Integer.parseInt(tokenUtil.parseToken(token));
+        System.out.println(id);
+        return getUserById(id);
     }
 
     /**
      * Purpose : To get user details by fetching its email
      *
-     * @param email input given by user
+     * @param id input given by user
      * @return object of the UserRegistration i.e data of the user
      */
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmailId(email)
+    public User getUserById(int id) {
+        return userRepository.findById(id)
                 .orElseThrow(() -> new BookStoreException
                         (messageSource.getMessage("unauthorised.user", null, Locale.ENGLISH),
                                 BookStoreException.ExceptionType.UNAUTHORISED_USER));
     }
 
+    /**
+     * Purpose : To get user details through its email id
+     *
+     * @param email input given by user
+     * @return object of User or exception if user not found
+     */
+    public User getUserByEmail(String email) {
+        return userRepository.findUserByEmailId(email)
+                .orElseThrow(() -> new BookStoreException(messageSource.getMessage("email.not.found", null, Locale.ENGLISH),
+                        BookStoreException.ExceptionType.EMAIL_NOT_FOUND));
+    }
 }
