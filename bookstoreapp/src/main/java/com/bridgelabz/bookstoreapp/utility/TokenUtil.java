@@ -16,14 +16,14 @@ public class TokenUtil {
     /**
      * Purpose : To generate JWT Token with its expiration time
      *
-     * @param email
+     * @param id
      * @return
      */
-    public String generateVerificationToken(String email) {
+    public String generateVerificationToken(int id) {
         log.info("Inside generateVerificationToken method.");
         long currentTime = System.currentTimeMillis();
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(String.valueOf(id))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(currentTime + 7200000))
                 .signWith(SignatureAlgorithm.HS256, jwtSecretKey)

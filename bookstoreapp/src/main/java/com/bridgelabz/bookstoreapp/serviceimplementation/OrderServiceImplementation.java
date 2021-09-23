@@ -41,18 +41,22 @@ public class OrderServiceImplementation implements IOrderService {
     ModelMapper modelMapper;
 
     /**
-     * Purpose : Ability to place order if user is verified user
+     * Purpose : Ability to place order if user is verified user and if user id
+     * is present in User Database
      *
-     * @param orderDTO object of OrderDTO that has data of order saved in repository
      * @param token    input given by user to authenticate user
-     * @return String object of messages
+     * @param userId   id of user that acts as foreign key in Order Table and primary key in User table in DB
+     * @param orderDTO object of OrderDTO that has data of order saved in repository
+     * @return response  with String object of message
      */
     @Override
-    public String placeOrder(OrderDTO orderDTO, String token) {
+    public String placeOrder(OrderDTO orderDTO, String token, int userId) {
         log.info("Inside placeOrder Service Method");
         if (isUserVerified(token)) {
             Order order = orderServiceBuilder.buildDO(orderDTO);
             Book byBookById = bookServiceImplementation.findByBookById(orderDTO.getBookId());
+            User userById = userServiceImplementation.getUserById(userId);
+            order.setUser(userById);
             order.setBook(byBookById);
             order.setOrderDate(LocalDate.now());
             double totalPrice = orderDTO.getQuantity() * byBookById.getPrice();
@@ -66,19 +70,26 @@ public class OrderServiceImplementation implements IOrderService {
     }
 
     /**
-     * Purpose : Ability to cancel or delete order with its order id
+     * Purpose : Ability to cancel or delete order by its id from the database if
+     * token entered is valid token and user id entered is valid user by
+     * checking in User database
      *
      * @param token   input given by user to authenticate user
-     * @param orderId variable that carries order id
-     * @return String object of messages
+     * @param orderId id of Order object
+     * @param userId  id of user that acts as foreign key in Order Table and primary key in User table in DB
+     * @return response  with String object of message
      */
     @Override
-    public String cancelOrder(String token, int orderId) {
+    public String cancelOrder(String token, int orderId, int userId) {
         log.info("Inside cancelOrder Service Method");
         if (isUserVerified(token)) {
             Order orderById = findOrderById(orderId);
-            orderRepository.delete(orderById);
-            return messageSource.getMessage("ordered.cancelled", null, Locale.ENGLISH);
+            if (orderById.getUser().getId() == userId) {
+                orderRepository.delete(orderById);
+                return messageSource.getMessage("ordered.cancelled", null, Locale.ENGLISH);
+            } else {
+                return messageSource.getMessage("incorrect.userid", null, Locale.ENGLISH);
+            }
         } else {
             throw new BookStoreException(messageSource.getMessage("email.not.verified",
                     null, Locale.ENGLISH), BookStoreException.ExceptionType.EMAIL_NOT_VERIFIED);
@@ -96,6 +107,26 @@ public class OrderServiceImplementation implements IOrderService {
         log.info("Inside getAllOrders Service Method");
         if (isUserVerified(token)) {
             return orderRepository.findAll();
+        } else {
+            throw new BookStoreException(messageSource.getMessage("email.not.verified",
+                    null, Locale.ENGLISH), BookStoreException.ExceptionType.EMAIL_NOT_VERIFIED);
+        }
+    }
+
+    /**
+     * Purpose : To get all orders placed by particular user from database
+     *
+     * @param token  input given by user to authenticate user
+     * @param userId id of user that acts as foreign key in Order Table and primary key in User table in DB
+     * @return List of Orders placed by User
+     */
+    @Override
+    public List<Order> getAllOrdersForUser(String token, int userId) {
+        log.info("Inside getAllOrdersForUser Service Method");
+        if (isUserVerified(token)) {
+            User userById = userServiceImplementation.getUserById(userId);
+            List<Order> allOrdersOfUser = orderRepository.findAllByUser(userById);
+            return allOrdersOfUser;
         } else {
             throw new BookStoreException(messageSource.getMessage("email.not.verified",
                     null, Locale.ENGLISH), BookStoreException.ExceptionType.EMAIL_NOT_VERIFIED);

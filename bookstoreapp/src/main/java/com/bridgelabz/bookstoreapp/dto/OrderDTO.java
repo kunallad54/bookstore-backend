@@ -11,6 +11,9 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class OrderDTO {
 
+    @NotNull(message = "User Id cannot be null")
+    private int userId;
+
     @NotNull(message = "Quantity cannot be null")
     private int quantity;
 
