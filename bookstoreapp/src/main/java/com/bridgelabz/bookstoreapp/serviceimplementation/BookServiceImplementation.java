@@ -50,7 +50,8 @@ public class BookServiceImplementation implements IBookService {
     @Override
     public String addBook(String token, BookDTO bookDTO) {
         log.info("Inside addBook Book Service Method");
-        if (isUserVerified(token)) {
+        User userByToken = userServiceImplementation.getUserByToken(token);
+        if (userByToken.isVerified) {
             Optional<Book> bookName = bookRepository.findByName(bookDTO.getName());
             if (bookName.isPresent()) {
                 throw new BookStoreException(messageSource.getMessage("book.already.exist",
@@ -76,7 +77,8 @@ public class BookServiceImplementation implements IBookService {
     @Override
     public List<BookDTO> getBooks(String token) {
         log.info("Inside getBook Service Method");
-        if (isUserVerified(token)) {
+        User userByToken = userServiceImplementation.getUserByToken(token);
+        if (userByToken.isVerified) {
             return bookRepository.findAll().stream()
                     .map(book -> modelMapper.map(book, BookDTO.class))
                     .collect(Collectors.toList());
@@ -96,7 +98,8 @@ public class BookServiceImplementation implements IBookService {
     @Override
     public String deleteBook(int id, String token) {
         log.info("Inside deleteBook Book Service Method");
-        if (isUserVerified(token)) {
+        User userByToken = userServiceImplementation.getUserByToken(token);
+        if (userByToken.isVerified) {
             Book book = findByBookById(id);
             bookRepository.delete(book);
             return messageSource.getMessage("deleted.books", null, Locale.ENGLISH);
@@ -119,7 +122,8 @@ public class BookServiceImplementation implements IBookService {
     @Override
     public String updateBookPrice(int id, String token, BookPriceDTO bookPriceDTO) {
         log.info("Inside updateBookPrice Service Method");
-        if (isUserVerified(token)) {
+        User userByToken = userServiceImplementation.getUserByToken(token);
+        if (userByToken.isVerified) {
             Book book = findByBookById(id);
             book.setPrice(bookPriceDTO.getPrice());
             bookRepository.save(book);
@@ -143,7 +147,8 @@ public class BookServiceImplementation implements IBookService {
     @Override
     public String updateBookQuantity(int id, String token, BookQuantityDTO bookQuantityDTO) {
         log.info("Inside updateBookQuantity Service Method");
-        if (isUserVerified(token)) {
+        User userByToken = userServiceImplementation.getUserByToken(token);
+        if (userByToken.isVerified) {
             Book book = findByBookById(id);
             book.setQuantity(bookQuantityDTO.getQuantity());
             bookRepository.save(book);
@@ -165,17 +170,6 @@ public class BookServiceImplementation implements IBookService {
         return bookRepository.findById(id)
                 .orElseThrow(() -> new BookStoreException(messageSource.getMessage("book.not.found",
                         null, Locale.ENGLISH), BookStoreException.ExceptionType.BOOK_NOT_FOUND));
-    }
-
-    /**
-     * Purpose : To verify user is valid user or not
-     *
-     * @param token generated of user
-     * @return boolean value true if user verified else false
-     */
-    private boolean isUserVerified(String token) {
-        User userByEmailToken = userServiceImplementation.getUserByEmailToken(token);
-        return userByEmailToken.isVerified;
     }
 
 }

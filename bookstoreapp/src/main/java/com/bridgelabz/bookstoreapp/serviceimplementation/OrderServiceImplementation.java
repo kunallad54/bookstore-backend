@@ -52,11 +52,11 @@ public class OrderServiceImplementation implements IOrderService {
     @Override
     public String placeOrder(OrderDTO orderDTO, String token, int userId) {
         log.info("Inside placeOrder Service Method");
-        if (isUserVerified(token)) {
+        User userByToken = userServiceImplementation.getUserByToken(token);
+        if (userByToken.isVerified && userByToken.getId() == userId) {
             Order order = orderServiceBuilder.buildDO(orderDTO);
             Book byBookById = bookServiceImplementation.findByBookById(orderDTO.getBookId());
-            User userById = userServiceImplementation.getUserById(userId);
-            order.setUser(userById);
+            order.setUser(userByToken);
             order.setBook(byBookById);
             order.setOrderDate(LocalDate.now());
             double totalPrice = orderDTO.getQuantity() * byBookById.getPrice();
@@ -82,7 +82,8 @@ public class OrderServiceImplementation implements IOrderService {
     @Override
     public String cancelOrder(String token, int orderId, int userId) {
         log.info("Inside cancelOrder Service Method");
-        if (isUserVerified(token)) {
+        User userByToken = userServiceImplementation.getUserByToken(token);
+        if (userByToken.isVerified && userByToken.getId()==userId) {
             Order orderById = findOrderById(orderId);
             if (orderById.getUser().getId() == userId) {
                 orderRepository.delete(orderById);
@@ -105,7 +106,8 @@ public class OrderServiceImplementation implements IOrderService {
     @Override
     public List<Order> getAllOrders(String token) {
         log.info("Inside getAllOrders Service Method");
-        if (isUserVerified(token)) {
+        User userByToken = userServiceImplementation.getUserByToken(token);
+        if (userByToken.isVerified) {
             return orderRepository.findAll();
         } else {
             throw new BookStoreException(messageSource.getMessage("email.not.verified",
@@ -123,7 +125,8 @@ public class OrderServiceImplementation implements IOrderService {
     @Override
     public List<Order> getAllOrdersForUser(String token, int userId) {
         log.info("Inside getAllOrdersForUser Service Method");
-        if (isUserVerified(token)) {
+        User userByToken = userServiceImplementation.getUserByToken(token);
+        if (userByToken.isVerified && userByToken.getId() == userId) {
             User userById = userServiceImplementation.getUserById(userId);
             List<Order> allOrdersOfUser = orderRepository.findAllByUser(userById);
             return allOrdersOfUser;
@@ -131,17 +134,6 @@ public class OrderServiceImplementation implements IOrderService {
             throw new BookStoreException(messageSource.getMessage("email.not.verified",
                     null, Locale.ENGLISH), BookStoreException.ExceptionType.EMAIL_NOT_VERIFIED);
         }
-    }
-
-    /**
-     * Purpose : Ability to authenticate user
-     *
-     * @param token input to check user is authenticated user or not
-     * @return true if verified else false
-     */
-    private boolean isUserVerified(String token) {
-        User userByEmailToken = userServiceImplementation.getUserByEmailToken(token);
-        return userByEmailToken.isVerified;
     }
 
     /**
