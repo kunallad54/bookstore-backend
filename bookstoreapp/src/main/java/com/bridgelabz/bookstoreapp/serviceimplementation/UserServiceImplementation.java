@@ -135,7 +135,7 @@ public class UserServiceImplementation implements IUserService {
     @Override
     public String forgotPassword(String token) {
         log.info("Inside forgotPassword User Service Method");
-        User userByEmail = getUserByEmailToken(token);
+        User userByEmail = getUserByToken(token);
         if (userByEmail.isVerified) {
             try {
                 String displayMessage = "RESET PASSWORD";
@@ -164,7 +164,7 @@ public class UserServiceImplementation implements IUserService {
     @Override
     public String resetPassword(String token, String password) {
         log.info("Inside resetPassword User Service Method");
-        User userByEmailToken = getUserByEmailToken(token);
+        User userByEmailToken = getUserByToken(token);
         userByEmailToken.setPassword(bCryptPasswordEncoder.encode(password));
         userRepository.save(userByEmailToken);
         log.info("resetPassword Service Method Executed Successfully");
@@ -180,7 +180,7 @@ public class UserServiceImplementation implements IUserService {
     @Override
     public String verifyEmailByToken(String token) {
         log.info("Inside verifyEmail service method.");
-        User user = getUserByEmailToken(token);
+        User user = getUserByToken(token);
         user.setIsVerified(true);
         userRepository.save(user);
         log.info("verifyEmail service method successfully executed.");
@@ -199,7 +199,7 @@ public class UserServiceImplementation implements IUserService {
     @Override
     public String purchaseSubscription(String token) {
         log.info("Inside purchaseSubscription Service Method");
-        User userByEmail = getUserByEmailToken(token);
+        User userByEmail = getUserByToken(token);
         userByEmail.setPurchasedDate(LocalDateTime.now());
         userByEmail.setExpiredDate(userByEmail.getPurchasedDate().plusMinutes(5));
         userRepository.save(userByEmail);
@@ -224,7 +224,7 @@ public class UserServiceImplementation implements IUserService {
     @Override
     public String expiryCheck(String token) {
         log.info("Inside expiryCheck Service Method");
-        User userByEmailToken = getUserByEmailToken(token);
+        User userByEmailToken = getUserByToken(token);
         log.info(userByEmailToken.getEmailId());
         LocalDateTime getCurrentTime = LocalDateTime.now();
         log.info(String.valueOf(getCurrentTime));
@@ -248,7 +248,7 @@ public class UserServiceImplementation implements IUserService {
      * @param token input by user
      * @return UserRegistration object
      */
-    public User getUserByEmailToken(String token) {
+    public User getUserByToken(String token) {
         log.info("Inside getUserByEmailToken Method");
         int id = Integer.parseInt(tokenUtil.parseToken(token));
         System.out.println(id);
