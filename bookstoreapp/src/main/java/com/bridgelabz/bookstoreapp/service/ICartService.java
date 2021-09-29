@@ -13,10 +13,9 @@ public interface ICartService {
      *
      * @param cartDTO object of CartDTO which carries cart details
      * @param token   input given by user to verify user is verified user or not
-     * @param userId  id of user that acts as foreign key in Cart Table and primary key in User table in DB
      * @return String object of messages
      */
-    String addToCart(CartDTO cartDTO, String token, int userId);
+    String addToCart(CartDTO cartDTO, String token);
 
     /**
      * Purpose : Ability to remove item from cart through cart id and user id from database
@@ -24,10 +23,9 @@ public interface ICartService {
      *
      * @param token  input given by user to verify user is verified user or not
      * @param cartId id of cart that specify item to be deleted
-     * @param userId id of user that acts as foreign key in Cart Table and primary key in User table in DB
      * @return String object of messages
      */
-    String removeFromCart(String token, int cartId, int userId);
+    String removeFromCart(String token, int cartId);
 
     /**
      * Purpose : To update quantity of item in the cart through its cart id if user token
@@ -36,10 +34,9 @@ public interface ICartService {
      * @param token    input given by user to verify user is verified user or not
      * @param cartId   id of cart that specify item to be updated
      * @param quantity updated quantity
-     * @param userId   id of user that acts as foreign key in Cart Table and primary key in User table in DB
      * @return String object of messages
      */
-    String updateQuantity(String token, int cartId, int quantity, int userId);
+    String updateQuantity(String token, int cartId, int quantity);
 
     /**
      * Purpose : Ability to get all cart items or cart orders from the database if
@@ -55,8 +52,7 @@ public interface ICartService {
      * is valid
      *
      * @param token  input given by user to verify user is verified user or not
-     * @param userId id of user that acts as foreign key in Cart Table and primary key in User table in DB
      * @return List of all Cart objects of the user along with a String object of message
      */
-    List<Cart> getAllCartOrdersForUser(String token, int userId);
+    List<Cart> getAllCartOrdersForUser(String token);
 }

@@ -12,11 +12,10 @@ public interface IOrderService {
      * is present in User Database
      *
      * @param token    input given by user to authenticate user
-     * @param userId   id of user that acts as foreign key in Order Table and primary key in User table in DB
      * @param orderDTO object of OrderDTO that has data of order saved in repository
      * @return response  with String object of message
      */
-    String placeOrder(OrderDTO orderDTO, String token, int userId);
+    String placeOrder(OrderDTO orderDTO, String token);
 
     /**
      * Purpose : Ability to cancel or delete order by its id from the database if

@@ -16,6 +16,7 @@ import java.util.Locale;
 @RestController
 @RequestMapping("/cart")
 @Slf4j
+@CrossOrigin
 public class CartController {
 
     @Autowired
@@ -29,16 +30,16 @@ public class CartController {
      * user token and user id needs to be valid
      *
      * @param token   input given by user to authenticate user
-     * @param userId  id of user that acts as foreign key in Cart Table and primary key in User table in DB
      * @param cartDTO object of CartDTO
      * @return response  with String object of message
      */
     @PostMapping("/add-to-cart")
-    public ResponseEntity<String> addToCart(@RequestParam(name = "token") String token,
-                                            @RequestParam(name = "user id") int userId,
+    public ResponseEntity<ResponseDTO> addToCart(@RequestParam(name = "token") String token,
                                             @Valid @RequestBody CartDTO cartDTO) {
         log.info("Inside addToCart Controller Method");
-        return new ResponseEntity<>(cartService.addToCart(cartDTO, token, userId), HttpStatus.OK);
+        ResponseDTO responseDTO = new ResponseDTO("Added to Cart",
+                cartService.addToCart(cartDTO, token));
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
     /**
@@ -46,16 +47,16 @@ public class CartController {
      * if user token and user id are valid
      *
      * @param token   input given by user to authenticate user
-     * @param userId  id of user that acts as foreign key in Cart Table and primary key in User table in DB
      * @param cart_id cart id
      * @return response  with String object of message
      */
     @DeleteMapping("/delete-from-cart")
-    public ResponseEntity<String> removeFromCart(@RequestParam(name = "token") String token,
-                                                 @RequestParam(name = "user id") int userId,
+    public ResponseEntity<ResponseDTO> removeFromCart(@RequestParam(name = "token") String token,
                                                  @RequestParam(name = "cart id") int cart_id) {
         log.info("Inside removeFromCart Controller Method");
-        return new ResponseEntity<>(cartService.removeFromCart(token, cart_id, userId), HttpStatus.OK);
+        ResponseDTO responseDTO = new ResponseDTO("Successfully deleted from cart",
+                cartService.removeFromCart(token,cart_id));
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
     /**
@@ -64,17 +65,17 @@ public class CartController {
      *
      * @param token    input given by user to verify user is verified user or not
      * @param cartId   id of cart that specify item to be updated
-     * @param userId   id of user that acts as foreign key in Cart Table and primary key in User table in DB
      * @param quantity updated quantity
      * @return response  with String object of message
      */
     @PutMapping("/update-cart")
-    public ResponseEntity<String> updateQuantity(@RequestParam(name = "token") String token,
+    public ResponseEntity<ResponseDTO> updateQuantity(@RequestParam(name = "token") String token,
                                                  @RequestParam(name = "cart id") int cartId,
-                                                 @RequestParam(name = "user id") int userId,
                                                  @RequestParam(name = "quantity") int quantity) {
         log.info("Inside updateQuantity Controller Method");
-        return new ResponseEntity<>(cartService.updateQuantity(token, cartId, userId, quantity), HttpStatus.OK);
+        ResponseDTO responseDTO = new ResponseDTO("Updated Quantity",
+                cartService.updateQuantity(token, cartId,quantity));
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
     /**
@@ -97,15 +98,13 @@ public class CartController {
      * is valid
      *
      * @param token  input given by user to verify user is verified user or not
-     * @param userId id of user that acts as foreign key in Cart Table and primary key in User table in DB
      * @return List of all Cart objects of the user along with a String object of message
      */
     @GetMapping("get-user-cart-orders")
-    public ResponseEntity<ResponseDTO> getAllCartOrdersForUser(@RequestParam(name = "token") String token,
-                                                               @RequestParam(name = "user id") int userId) {
+    public ResponseEntity<ResponseDTO> getAllCartOrdersForUser(@RequestParam(name = "token") String token) {
         log.info("Inside getAllCartOrdersForUser Controller Method");
         ResponseDTO responseDTO = new ResponseDTO(messageSource.getMessage("get.user.cart.orders",
-                null, Locale.ENGLISH), cartService.getAllCartOrdersForUser(token, userId));
+                null, Locale.ENGLISH), cartService.getAllCartOrdersForUser(token));
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 }

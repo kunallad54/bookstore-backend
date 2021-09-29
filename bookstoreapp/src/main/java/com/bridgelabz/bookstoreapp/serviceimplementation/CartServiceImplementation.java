@@ -6,6 +6,7 @@ import com.bridgelabz.bookstoreapp.entity.Book;
 import com.bridgelabz.bookstoreapp.entity.Cart;
 import com.bridgelabz.bookstoreapp.entity.User;
 import com.bridgelabz.bookstoreapp.exceptions.BookStoreException;
+import com.bridgelabz.bookstoreapp.repository.BookRepository;
 import com.bridgelabz.bookstoreapp.repository.CartRepository;
 import com.bridgelabz.bookstoreapp.service.ICartService;
 import lombok.extern.slf4j.Slf4j;
@@ -35,22 +36,26 @@ public class CartServiceImplementation implements ICartService {
     @Autowired
     BookServiceImplementation bookServiceImplementation;
 
+    @Autowired
+    BookRepository bookRepository;
+
     /**
      * Purpose : To add  cart details in the Cart database after validating cart details and
      * user token and user id needs to be valid
      *
      * @param cartDTO object of CartDTO which carries cart details
      * @param token   input given by user to verify user is verified user or not
-     * @param userId  id of user that acts as foreign key in Cart Table and primary key in User table in DB
      * @return String object of messages
      */
     @Override
-    public String addToCart(CartDTO cartDTO, String token, int userId) {
+    public String addToCart(CartDTO cartDTO, String token) {
         log.info("Inside addToCart Service Method");
         User userByToken = userServiceImplementation.getUserByToken(token);
-        if (userByToken.isVerified && userByToken.getId() == userId) {
+        if (userByToken.isVerified) {
             Cart cart = cartServiceBuilder.buildDO(cartDTO);
             Book BookById = bookServiceImplementation.findByBookById(cartDTO.getBookId());
+            BookById.setIsBookAdded(true);
+            bookRepository.save(BookById);
             cart.setUser(userByToken);
             cart.setBook(BookById);
             cartRepository.save(cart);
@@ -67,16 +72,18 @@ public class CartServiceImplementation implements ICartService {
      *
      * @param token  input given by user to verify user is verified user or not
      * @param cartId id of cart that specify item to be deleted
-     * @param userId id of user that acts as foreign key in Cart Table and primary key in User table in DB
      * @return String object of messages
      */
     @Override
-    public String removeFromCart(String token, int cartId, int userId) {
+    public String removeFromCart(String token, int cartId) {
         log.info("Inside removeFromCart Service Method");
         User userByToken = userServiceImplementation.getUserByToken(token);
-        if (userByToken.isVerified && userByToken.getId() == userId) {
+        if (userByToken.isVerified) {
             Cart cartById = findCartById(cartId);
-            if (cartById.getUser().getId() == userId) {
+            if (cartById.getUser().getId() == userByToken.getId()) {
+                Book book = cartById.getBook();
+                book.setIsBookAdded(false);
+                bookRepository.save(book);
                 cartRepository.delete(cartById);
                 return messageSource.getMessage("removed.from.cart", null, Locale.ENGLISH);
             } else {
@@ -95,16 +102,15 @@ public class CartServiceImplementation implements ICartService {
      * @param token    input given by user to verify user is verified user or not
      * @param cartId   id of cart that specify item to be updated
      * @param quantity updated quantity
-     * @param userId   id of user that acts as foreign key in Cart Table and primary key in User table in DB
      * @return String object of messages
      */
     @Override
-    public String updateQuantity(String token, int cartId, int quantity, int userId) {
+    public String updateQuantity(String token, int cartId, int quantity) {
         log.info("Inside updateQuantity Service Method");
         User userByToken = userServiceImplementation.getUserByToken(token);
-        if (userByToken.isVerified && userByToken.getId() == userId) {
+        if (userByToken.isVerified) {
             Cart cartById = findCartById(cartId);
-            if (cartById.getUser().getId() == userId) {
+            if (cartById.getUser().getId() == userByToken.getId()) {
                 cartById.setQuantity(quantity);
                 cartRepository.save(cartById);
                 return messageSource.getMessage("updated.cart", null, Locale.ENGLISH);
@@ -142,16 +148,14 @@ public class CartServiceImplementation implements ICartService {
      * is valid
      *
      * @param token  input given by user to verify user is verified user or not
-     * @param userId id of user that acts as foreign key in Cart Table and primary key in User table in DB
      * @return List of all Cart objects of the user along with a String object of message
      */
     @Override
-    public List<Cart> getAllCartOrdersForUser(String token, int userId) {
+    public List<Cart> getAllCartOrdersForUser(String token) {
         log.info("Inside getAllCartOrdersForUser Service Method");
         User userByToken = userServiceImplementation.getUserByToken(token);
-        if (userByToken.isVerified && userByToken.getId() == userId) {
-            User userById = userServiceImplementation.getUserById(userId);
-            List<Cart> allByUser = cartRepository.findAllByUser(userById);
+        if (userByToken.isVerified) {
+            List<Cart> allByUser = cartRepository.findAllByUser(userByToken);
             return allByUser;
         } else {
             throw new BookStoreException(messageSource.getMessage("email.not.verified", null

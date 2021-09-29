@@ -16,6 +16,12 @@ public class Order {
     @Column(name = "ORDER_ID", nullable = false)
     private int id;
 
+    @Column(name = "RECEIVER_NAME")
+        private String  receiverName;
+
+    @Column(name = "RECEIVER_NUMBER")
+    private String receiverNumber;
+
     @Column(name = "ORDER_DATE")
     private LocalDate orderDate;
 
@@ -36,6 +42,12 @@ public class Order {
 
     @Column(name = "ZIP_CODE")
     private String zipCode;
+
+    @Column(name = "LANDMARK")
+    private String landMark;
+
+    @Column(name = "ADDRESS_TYPE")
+    private String addressType;
 
     @JsonIgnoreProperties(value = {"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)

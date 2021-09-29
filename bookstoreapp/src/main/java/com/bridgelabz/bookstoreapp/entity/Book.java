@@ -3,6 +3,7 @@ package com.bridgelabz.bookstoreapp.entity;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Data
 @Entity
@@ -30,4 +31,7 @@ public class Book {
 
     @Column(name = "QUANTITY")
     private int quantity;
+
+    @Column(name = "BOOK_ADD",nullable = false)
+    private Boolean isBookAdded;
 }

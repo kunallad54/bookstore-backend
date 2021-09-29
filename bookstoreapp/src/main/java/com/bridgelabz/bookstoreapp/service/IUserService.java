@@ -2,6 +2,7 @@ package com.bridgelabz.bookstoreapp.service;
 
 import com.bridgelabz.bookstoreapp.dto.UserLoginDTO;
 import com.bridgelabz.bookstoreapp.dto.UserRegistrationDTO;
+import com.bridgelabz.bookstoreapp.dto.VerifyUserDTO;
 
 public interface IUserService {
 
@@ -16,11 +17,10 @@ public interface IUserService {
     /**
      * Purpose : Ability to verify email after registration.
      *
-     * @param userOTP OTP entered by the user
-     * @param email   user email
+     * @param verifyUserDTO object of VerifyUserDTO that ask for email and OTP from user
      * @return String Object to print the message.
      */
-    String verifyEmail(String userOTP, String email);
+    String verifyEmail(VerifyUserDTO verifyUserDTO);
 
 
     /**

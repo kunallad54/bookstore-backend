@@ -15,7 +15,7 @@ public class BookDTO {
 
     private int id;
     @NotEmpty(message = "Book Name cannot be null")
-    @Pattern(regexp = "^[a-zA-Z0-9\\s]+$", message = "Book Name Invalid")
+//    @Pattern(regexp = "^[a-zA-Z0-9\\s]+$", message = "Book Name Invalid")
     private String name;
 
     @NotEmpty(message = "Author Name cannot be null")
@@ -34,4 +34,6 @@ public class BookDTO {
 
     @NotNull(message = "Quantity cannot be null")
     private int quantity;
+
+    private Boolean isBookAdded;
 }

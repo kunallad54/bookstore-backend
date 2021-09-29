@@ -1,9 +1,6 @@
 package com.bridgelabz.bookstoreapp.controller;
 
-import com.bridgelabz.bookstoreapp.dto.PasswordDTO;
-import com.bridgelabz.bookstoreapp.dto.ResponseDTO;
-import com.bridgelabz.bookstoreapp.dto.UserLoginDTO;
-import com.bridgelabz.bookstoreapp.dto.UserRegistrationDTO;
+import com.bridgelabz.bookstoreapp.dto.*;
 import com.bridgelabz.bookstoreapp.service.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +15,7 @@ import java.util.Locale;
 @RequestMapping("/user")
 @RestController
 @Slf4j
+@CrossOrigin
 public class UserController {
 
     @Autowired
@@ -36,23 +34,23 @@ public class UserController {
      * @return String Object to print the message whether user was successfully registered or not
      */
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody @Valid UserRegistrationDTO userRegistrationDTO) {
+    public ResponseEntity<ResponseDTO> registerUser(@RequestBody @Valid UserRegistrationDTO userRegistrationDTO) {
         log.info("Inside registerUser controller method");
-        return new ResponseEntity<>(userService.registerUser(userRegistrationDTO), HttpStatus.CREATED);
+        ResponseDTO responseDTO = new ResponseDTO("Registration Successfull",userService.registerUser(userRegistrationDTO));
+        return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
     }
 
     /**
      * Purpose : To check whether the user OTP is the actual OTP sent on its mail and then verify user
      *
-     * @param OTP   input given by user
-     * @param email end user email
+     * @param verifyUserDTO  object of VerifyUserDTO that ask for email and otp from user
      * @return String object to print message whether user was verified or not
      */
-    @GetMapping
-    public ResponseEntity<String> verifyEmail(@RequestParam(name = "userOTP") String OTP,
-                                              @RequestParam String email) {
+    @PostMapping("/verify-user")
+    public ResponseEntity<ResponseDTO> verifyEmail(@RequestBody @Valid VerifyUserDTO verifyUserDTO) {
         log.info("Inside verifyEmail User Controller Method");
-        return new ResponseEntity<>(userService.verifyEmail(OTP, email), HttpStatus.OK);
+        ResponseDTO responseDTO = new ResponseDTO("Verfication in Process",userService.verifyEmail(verifyUserDTO));
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
 
@@ -64,8 +62,10 @@ public class UserController {
      * @return String object to print message whether login was successful or not
      */
     @PostMapping("/login")
-    public ResponseEntity<ResponseDTO> userLogin(@Valid @RequestBody UserLoginDTO userLoginDTO) {
+    public ResponseEntity<ResponseDTO> userLogin(@RequestBody UserLoginDTO userLoginDTO) {
         log.info("Inside userLogin Controller Method");
+        System.out.println(userLoginDTO.getEmailID());
+        System.out.println(userLoginDTO.getPassword());
         ResponseDTO responseDTO = new ResponseDTO(messageSource.getMessage("login.success",
                 null, Locale.ENGLISH), userService.loginUser(userLoginDTO));
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
@@ -74,13 +74,14 @@ public class UserController {
     /**
      * Purpose : To send email with link for resetting the password if the email is present in DB
      *
-     * @param tokenID input given by user
+     * @param emailID input given by user
      * @return String Object to print message
      */
     @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgetPassword(@RequestParam(name = "token") String tokenID) {
+    public ResponseEntity<ResponseDTO> forgetPassword(@RequestParam(name = "emailID") String emailID) {
         log.info(("Inside forgotPassword User Controller Method"));
-        return new ResponseEntity<>(userService.forgotPassword(tokenID), HttpStatus.OK);
+        ResponseDTO responseDTO = new ResponseDTO("Forgot Password Successfull",userService.forgotPassword(emailID));
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
     /**

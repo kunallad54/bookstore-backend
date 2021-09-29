@@ -3,6 +3,7 @@ package com.bridgelabz.bookstoreapp.serviceimplementation;
 import com.bridgelabz.bookstoreapp.builder.UserServiceBuilder;
 import com.bridgelabz.bookstoreapp.dto.UserLoginDTO;
 import com.bridgelabz.bookstoreapp.dto.UserRegistrationDTO;
+import com.bridgelabz.bookstoreapp.dto.VerifyUserDTO;
 import com.bridgelabz.bookstoreapp.entity.User;
 import com.bridgelabz.bookstoreapp.exceptions.BookStoreException;
 import com.bridgelabz.bookstoreapp.repository.UserRepository;
@@ -79,16 +80,15 @@ public class UserServiceImplementation implements IUserService {
      * If user entered OTP and actual OTP matches then
      * user will be verified or else not
      *
-     * @param userOTP OTP entered by the user
-     * @param email   user email
+     * @param verifyUserDTO object of VerifyUserDTO that ask for email and OTP from user
      * @return String object of message
      */
     @Override
-    public String verifyEmail(String userOTP, String email) {
+    public String verifyEmail(VerifyUserDTO verifyUserDTO) {
         log.info("Inside verifyEmail User Service Method");
-        User user = getUserByEmail(email);
+        User user = getUserByEmail(verifyUserDTO.getEmailId());
         String generatedOTP = user.getOtp();
-        if (Objects.equals(userOTP, generatedOTP)) {
+        if (Objects.equals(verifyUserDTO.getOtp(), generatedOTP)) {
             user.setIsVerified(true);
             userRepository.save(user);
             return messageSource.getMessage("email.verified", null, Locale.ENGLISH);
@@ -106,6 +106,7 @@ public class UserServiceImplementation implements IUserService {
     @Override
     public String loginUser(UserLoginDTO userLoginDTO) {
         log.info("Inside loginUser Service method ");
+        System.out.println(userLoginDTO.getEmailID());
         User userByEmail = getUserByEmail(userLoginDTO.getEmailID());
         if (userByEmail.isVerified) {
             boolean password = bCryptPasswordEncoder.matches(userLoginDTO.getPassword(),
@@ -116,8 +117,7 @@ public class UserServiceImplementation implements IUserService {
             }
             String token = tokenUtil.generateVerificationToken(userByEmail.getId());
             log.info("loginUser Service Method Successfully executed");
-            String message = "Logged in successfully !!! Your token is : " + token;
-            return message;
+            return token;
         } else {
             throw new BookStoreException(messageSource.getMessage("email.not.verified",
                     null, Locale.ENGLISH), BookStoreException.ExceptionType.EMAIL_NOT_VERIFIED);
@@ -127,20 +127,21 @@ public class UserServiceImplementation implements IUserService {
     /**
      * Purpose : Ability to send email when user clicks on forget password.
      *
-     * @param token variable is generated token during login
+     * @param emailID variable is generated token during login
      *              If token is valid, a mail is triggered to the user to reset the
      *              password.
      * @return String object of message
      */
     @Override
-    public String forgotPassword(String token) {
+    public String forgotPassword(String emailID) {
         log.info("Inside forgotPassword User Service Method");
-        User userByEmail = getUserByToken(token);
+        User userByEmail = getUserByEmail(emailID);
         if (userByEmail.isVerified) {
             try {
                 String displayMessage = "RESET PASSWORD";
+                String resetToken = tokenUtil.generateVerificationToken(userByEmail.getId());
                 mailUtil.sendResetPasswordMail(userByEmail,
-                        token, displayMessage);
+                        resetToken, displayMessage);
             } catch (Exception e) {
                 e.printStackTrace();
             }

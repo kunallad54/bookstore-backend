@@ -19,6 +19,7 @@ import java.util.Locale;
 @RestController
 @RequestMapping("/book")
 @Slf4j
+@CrossOrigin
 public class BookController {
 
     @Autowired

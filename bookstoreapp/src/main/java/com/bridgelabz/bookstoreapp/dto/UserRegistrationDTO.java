@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -25,10 +26,10 @@ public class UserRegistrationDTO {
     @Pattern(regexp = "^[2-9]{1}[0-9]{11}$", message = "KYC Invalid")
     private String kyc;
 
-    @JsonFormat(pattern = "dd MMM yyyy")
+//    @JsonFormat(pattern = "dd MMM yyyy")
     @NotNull(message = "Date of Birth should not be Empty")
     @Past(message = "Date of Birth should be past date")
-    private LocalDate dateOfBirth;
+    private LocalDateTime dateOfBirth;
 
     @NotEmpty(message = "Phone Number can not be empty.")
     @Pattern(regexp = "^(6|7|8|9)?[0-9]{9}$")
@@ -42,6 +43,6 @@ public class UserRegistrationDTO {
     @Pattern(regexp = "^(?=.*[0-9])(?=[^@#$%^&+=]*[@#$%^&+=][^@#$%^&+=]*$)(?=.*[a-z])(?=.*[A-Z]).{8,}$", message = "Password Invalid")
     private String password;
 
-    @Pattern(regexp = "User|Admin", message = "User Type should be Admin or User")
-    private String userType;
+//    @Pattern(regexp = "User|Admin", message = "User Type should be Admin or User")
+//    private String userType;
 }

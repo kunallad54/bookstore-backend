@@ -45,15 +45,14 @@ public class OrderServiceImplementation implements IOrderService {
      * is present in User Database
      *
      * @param token    input given by user to authenticate user
-     * @param userId   id of user that acts as foreign key in Order Table and primary key in User table in DB
      * @param orderDTO object of OrderDTO that has data of order saved in repository
      * @return response  with String object of message
      */
     @Override
-    public String placeOrder(OrderDTO orderDTO, String token, int userId) {
+    public String placeOrder(OrderDTO orderDTO, String token) {
         log.info("Inside placeOrder Service Method");
         User userByToken = userServiceImplementation.getUserByToken(token);
-        if (userByToken.isVerified && userByToken.getId() == userId) {
+        if (userByToken.isVerified) {
             Order order = orderServiceBuilder.buildDO(orderDTO);
             Book byBookById = bookServiceImplementation.findByBookById(orderDTO.getBookId());
             order.setUser(userByToken);

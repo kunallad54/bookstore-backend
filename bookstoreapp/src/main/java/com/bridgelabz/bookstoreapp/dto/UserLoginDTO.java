@@ -14,8 +14,6 @@ import javax.validation.constraints.Pattern;
 @NoArgsConstructor
 public class UserLoginDTO {
 
-    @NotNull(message = "Email should not be Empty")
-    @Email(message = "Email invalid")
     private String emailID;
 
     @NotEmpty(message = "Password cannot be null")

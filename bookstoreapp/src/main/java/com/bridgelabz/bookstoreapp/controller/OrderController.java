@@ -16,6 +16,7 @@ import java.util.Locale;
 @RestController
 @RequestMapping("/order")
 @Slf4j
+@CrossOrigin
 public class OrderController {
 
     @Autowired
@@ -29,15 +30,13 @@ public class OrderController {
      * is present in User Database
      *
      * @param token    input given by user to authenticate user
-     * @param userId   id of user that acts as foreign key in Order Table and primary key in User table in DB
      * @param orderDTO object of OrderDTO that has data of order saved in repository
      * @return response  with String object of message
      */
     @PostMapping("/place-order")
-    public ResponseEntity<String> placeOrder(@RequestParam(name = "token") String token, @RequestParam
-            (name = "user id") int userId, @Valid @RequestBody OrderDTO orderDTO) {
+    public ResponseEntity<String> placeOrder(@RequestParam(name = "token") String token,@Valid @RequestBody OrderDTO orderDTO) {
         log.info("Inside placeOrder Controller Method");
-        return new ResponseEntity<>(orderService.placeOrder(orderDTO, token, userId), HttpStatus.OK);
+        return new ResponseEntity<>(orderService.placeOrder(orderDTO, token), HttpStatus.OK);
     }
 
     /**

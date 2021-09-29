@@ -27,7 +27,7 @@ public class User {
     private String kyc;
 
     @Column(name = "DATE_OF_BIRTH")
-    private LocalDate dateOfBirth;
+    private LocalDateTime dateOfBirth;
 
     @Column(name = "PASSWORD")
     private String password;
